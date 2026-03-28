@@ -1,0 +1,47 @@
+<h2 mat-dialog-title>{{ isEditMode ? 'Edit Card' : 'Add Card' }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="cardForm">
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Title</mat-label>
+      <input matInput formControlName="title" placeholder="Enter card title">
+      @if (title?.hasError('required')) {
+        <mat-error>Title is required</mat-error>
+      }
+      @if (title?.hasError('maxlength')) {
+        <mat-error>Title cannot exceed 200 characters</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Description</mat-label>
+      <textarea
+        matInput
+        formControlName="description"
+        placeholder="Enter description (optional)"
+        rows="4">
+      </textarea>
+    </mat-form-field>
+
+    @if (errorMessage) {
+      <div class="error-message">{{ errorMessage }}</div>
+    }
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onSubmit()"
+    [disabled]="cardForm.invalid || isLoading">
+    @if (isLoading) {
+      <mat-spinner diameter="20"></mat-spinner>
+    } @else {
+      <span>{{ isEditMode ? 'Save Changes' : 'Add Card' }}</span>
+    }
+  </button>
+</mat-dialog-actions>

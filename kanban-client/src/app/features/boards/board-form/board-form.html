@@ -1,0 +1,35 @@
+<h2 mat-dialog-title>Create Board</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="boardForm">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Board Name</mat-label>
+      <input matInput formControlName="name" placeholder="Enter board name">
+      @if (name?.hasError('required')) {
+        <mat-error>Board name is required</mat-error>
+      }
+      @if (name?.hasError('maxlength')) {
+        <mat-error>Board name cannot exceed 100 characters</mat-error>
+      }
+    </mat-form-field>
+
+    @if (errorMessage) {
+      <div class="error-message">{{ errorMessage }}</div>
+    }
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onSubmit()"
+    [disabled]="boardForm.invalid || isLoading">
+    @if (isLoading) {
+      <mat-spinner diameter="20"></mat-spinner>
+    } @else {
+      <span>Create Board</span>
+    }
+  </button>
+</mat-dialog-actions>

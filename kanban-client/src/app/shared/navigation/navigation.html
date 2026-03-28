@@ -1,0 +1,36 @@
+<mat-sidenav-container class="sidenav-container">
+
+  <mat-sidenav mode="side" opened class="sidenav">
+    <mat-toolbar color="primary">
+      <mat-icon>dashboard</mat-icon>
+      <span class="toolbar-title">Kanban</span>
+    </mat-toolbar>
+
+    <div class="user-info">
+      <mat-icon class="user-icon">account_circle</mat-icon>
+      <div class="user-details">
+        <span class="user-name">{{ getCurrentUser()?.fullName }}</span>
+        <span class="user-email">{{ getCurrentUser()?.email }}</span>
+      </div>
+    </div>
+
+    <mat-nav-list>
+      <a mat-list-item routerLink="/boards" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>view_kanban</mat-icon>
+        <span matListItemTitle>My Boards</span>
+      </a>
+    </mat-nav-list>
+
+    <div class="logout-container">
+      <button mat-button (click)="logout()" class="logout-button">
+        <mat-icon>logout</mat-icon>
+        <span>Logout</span>
+      </button>
+    </div>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="content">
+    <router-outlet></router-outlet>
+  </mat-sidenav-content>
+
+</mat-sidenav-container>

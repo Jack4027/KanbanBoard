@@ -1,0 +1,69 @@
+<div class="page-container">
+  @if (isLoading) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  } @else if (errorMessage) {
+    <div class="error-message">{{ errorMessage }}</div>
+  } @else if (board) {
+    <div class="board-header">
+      <h1>{{ board.name }}</h1>
+      <button mat-raised-button color="primary" (click)="openAddColumn()">
+        <mat-icon>add</mat-icon>
+        Add Column
+      </button>
+    </div>
+
+    <div class="columns-container" cdkDropListGroup cdkScrollable>
+      @for (column of board.columns; track column.id) {
+        <div class="column"
+          cdkDropList
+          [id]="column.id"
+          [cdkDropListData]="column.cards"
+          (cdkDropListDropped)="onCardDrop($event, column)">
+
+          <div class="column-header">
+            <h3>{{ column.name }}</h3>
+            <div class="column-actions">
+              <button mat-icon-button (click)="openEditColumn(column, $event)">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="deleteColumn(column.id, $event)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <div class="cards-container">
+            @for (card of column.cards; track card.id) {
+              <mat-card
+                class="card-item"
+                cdkDrag>
+                <mat-card-content>
+                  <p class="card-title">{{ card.title }}</p>
+                  @if (card.description) {
+                    <p class="card-description">{{ card.description }}</p>
+                  }
+                </mat-card-content>
+                <mat-card-actions>
+                  <button mat-icon-button (click)="openEditCard(card, $event)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button color="warn" (click)="deleteCard(card, $event)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </mat-card-actions>
+              </mat-card>
+            }
+
+            <button mat-button class="add-card-button" (click)="openAddCard(column.id)">
+              <mat-icon>add</mat-icon>
+              Add Card
+            </button>
+          </div>
+
+        </div>
+      }
+    </div>
+  }
+</div>

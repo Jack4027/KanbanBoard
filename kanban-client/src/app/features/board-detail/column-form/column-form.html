@@ -1,0 +1,35 @@
+<h2 mat-dialog-title>{{ isEditMode ? 'Edit Column' : 'Add Column' }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="columnForm">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Column Name</mat-label>
+      <input matInput formControlName="name" placeholder="Enter column name">
+      @if (name?.hasError('required')) {
+        <mat-error>Column name is required</mat-error>
+      }
+      @if (name?.hasError('maxlength')) {
+        <mat-error>Column name cannot exceed 100 characters</mat-error>
+      }
+    </mat-form-field>
+
+    @if (errorMessage) {
+      <div class="error-message">{{ errorMessage }}</div>
+    }
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onSubmit()"
+    [disabled]="columnForm.invalid || isLoading">
+    @if (isLoading) {
+      <mat-spinner diameter="20"></mat-spinner>
+    } @else {
+      <span>{{ isEditMode ? 'Save Changes' : 'Add Column' }}</span>
+    }
+  </button>
+</mat-dialog-actions>
