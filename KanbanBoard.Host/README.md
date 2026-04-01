@@ -379,6 +379,7 @@ http://localhost:4200
 
 ---
 
+
 ## Key Engineering Concepts Demonstrated
 
 ### Backend
@@ -408,6 +409,148 @@ http://localhost:4200
 - Reactive forms with inline validation
 
 ---
+
+---
+
+## Docker
+
+The application is fully containerised using Docker and Docker Compose.
+
+### Prerequisites
+- Docker Desktop with virtualisation enabled in BIOS
+- Or any Docker-compatible container runtime
+
+### Services
+
+| Service | Image | Port |
+|---------|-------|------|
+| `kanban-api` | .NET 10 ASP.NET Core | Internal only |
+| `kanban-frontend` | Nginx + Angular build | 4300 |
+| `sqlserver` | SQL Server 2022 Express | 1434 (dev only) |
+
+### Running with Docker Compose
+
+1. Copy the example environment file and fill in your values:
+```bash
+cp .env.example .env
+```
+
+2. Start all services:
+```bash
+docker compose up --build
+```
+
+3. Open the application:
+```
+http://localhost:4300
+```
+
+4. Stop all services:
+```bash
+docker compose down
+```
+
+### Architecture
+```
+Browser → localhost:4300
+            ↓
+          Nginx (kanban-frontend)
+            ↓ /api/   →  kanban-api:8080
+            ↓ /hubs/  →  kanban-api:8080 (SignalR WebSocket)
+            ↓ /       →  Angular static files
+```
+
+The API container is not exposed directly — all traffic enters through Nginx. WebSocket connections for SignalR are proxied through the `/hubs/` location block with the correct `Upgrade` and `Connection` headers to enable the WebSocket handshake. SQL Server is only reachable internally by the API container.
+
+### Note on Virtualisation
+
+Docker requires hardware virtualisation to be enabled in BIOS. If Docker Desktop shows a virtualisation error enable `Intel Virtualization Technology` or `SVM Mode` in your BIOS settings.
+
+---
+
+## Kubernetes
+
+Kubernetes manifests are provided in the `k8s/` folder for deployment to a Kubernetes cluster.
+
+### Prerequisites
+- Minikube — local Kubernetes cluster
+- kubectl — Kubernetes CLI
+- Hardware virtualisation enabled in BIOS
+
+### Manifest Structure
+```
+k8s/
+├── secrets.yaml                      ← JWT key and DB password (base64 encoded)
+├── configmap.yaml                    ← Non-sensitive configuration
+├── sqlserver-deployment.yaml         ← SQL Server pod and persistent volume
+├── sqlserver-service.yaml            ← Internal SQL Server endpoint
+├── kanban-api-deployment.yaml        ← API pod with health probes
+├── kanban-api-service.yaml           ← Internal API endpoint
+├── kanban-frontend-deployment.yaml   ← Nginx + Angular pod
+├── kanban-frontend-service.yaml      ← Frontend endpoint (NodePort for dev)
+└── ingress.yaml                      ← External traffic routing
+```
+
+### Deploying to Minikube
+
+1. Start Minikube:
+```bash
+minikube start
+```
+
+2. Enable the Ingress addon:
+```bash
+minikube addons enable ingress
+```
+
+3. Apply all manifests:
+```bash
+kubectl apply -f k8s/
+```
+
+4. Get the Minikube IP:
+```bash
+minikube ip
+```
+
+5. Add to your hosts file (`C:\Windows\System32\drivers\etc\hosts`):
+```
+<minikube-ip>  kanban.local
+```
+
+6. Open the application:
+```
+http://kanban.local
+```
+
+### Health Checks
+
+The API exposes a `/health` endpoint used by Kubernetes probes:
+```
+Liveness probe  → restarts pod if unhealthy
+Readiness probe → removes pod from load balancer if not ready
+```
+
+### Scaling
+
+To scale the API to multiple replicas:
+```bash
+kubectl scale deployment kanban-api --replicas=3
+```
+
+Kubernetes automatically load balances requests across all healthy replicas.
+
+### Challenges and Design Decisions
+
+**Secrets management** — sensitive values are stored as Kubernetes Secrets encoded in base64 and never appear in plain text in any manifest file. In a production environment these would be managed by a dedicated secrets manager such as Azure Key Vault or AWS Secrets Manager.
+
+**Persistent storage** — SQL Server uses a PersistentVolumeClaim to ensure database files survive pod restarts and redeployments.
+
+**Health probes** — liveness and readiness probes use the `/health` endpoint to give Kubernetes visibility into application health enabling automatic recovery from failures.
+
+**SignalR WebSocket support** — the Nginx Ingress is configured with extended proxy timeouts of 3600 seconds to keep SignalR WebSocket connections alive for the duration of a user session. Without this Nginx would close connections after its default 60 second timeout, forcing SignalR to fall back to long polling.
+
+**NodePort vs Ingress** — the frontend service uses NodePort for local Minikube development. In production this would be replaced with ClusterIP and all external traffic would route through the Ingress controller.
 
 ## Future Improvements
 

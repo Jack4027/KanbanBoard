@@ -1,4 +1,4 @@
-﻿using KanbanBoard.Application.DTOs.Requests;
+﻿using KanbanBoard.Application.DTOs.Requests.Column;
 using KanbanBoard.Application.DTOs.Responses;
 
 namespace KanbanBoard.Application.Interfaces.Services

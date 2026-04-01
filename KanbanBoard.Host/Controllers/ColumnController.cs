@@ -1,4 +1,4 @@
-﻿using KanbanBoard.Application.DTOs.Requests;
+﻿using KanbanBoard.Application.DTOs.Requests.Column;
 using KanbanBoard.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

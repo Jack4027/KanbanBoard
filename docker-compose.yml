@@ -1,0 +1,61 @@
+services:
+
+  kanban-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kanban-api
+
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=InventoryDb;User Id=sa;Password=${INVENTORY_DB_PASSWORD};TrustServerCertificate=True;
+      - Jwt__Key=${INVENTORY_JWT_KEY}
+      - Jwt__Issuer=InventoryAndOrderManagementSystem
+      - Jwt__Audience=InventoryAndOrderManagementSystemUsers
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    networks:
+      - kanban-network
+
+  kanban-frontend:
+    build:
+      context: ./kanban-client
+      dockerfile: Dockerfile
+    container_name: kanban-frontend
+    ports:
+      - "4300:80"
+    depends_on:
+      - kanban-api
+    networks:
+      - kanban-network
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: kanban-sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${SQL_SA_PASSWORD}
+      - MSSQL_PID=Express
+
+      #remove for production, meant for debugging database in sql server management studio in development
+    ports:
+      - "1434:1433"
+    volumes:
+      - kanban-sqlserver-data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${SQL_SA_PASSWORD} -Q 'SELECT 1' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - kanban-network
+
+networks:
+  kanban-network:
+    driver: bridge
+
+volumes:
+  kanban-sqlserver-data:

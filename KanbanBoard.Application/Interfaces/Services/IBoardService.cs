@@ -1,5 +1,8 @@
 ﻿using KanbanBoard.Application.DTOs.Requests;
+using KanbanBoard.Application.DTOs.Requests.Board;
+using KanbanBoard.Application.DTOs.Requests.Pagination;
 using KanbanBoard.Application.DTOs.Responses;
+using KanbanBoard.Application.DTOs.Responses.Pagination;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,7 +13,7 @@ namespace KanbanBoard.Application.Interfaces.Services
     {
         Task<BoardResponseDto> CreateBoard(CreateBoardDto dto, string userId);
         Task<BoardResponseDto> GetBoardById(Guid id, string userId);
-        Task<IEnumerable<BoardSummaryResponseDto>> GetBoardsByUserId(string userId);
+        Task<PagedResult<BoardSummaryResponseDto>> GetBoardsByUserId(string userId, PaginationParams pagination);
         Task<BoardResponseDto> UpdateBoard(Guid id, UpdateBoardDto dto, string userId);
         Task DeleteBoard(Guid id, string userId);
     }

@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using KanbanBoard.Application.DTOs.Requests;
 using KanbanBoard.Application.DTOs.Responses;
 using KanbanBoard.Domain.Interfaces.Repository;
 using KanbanBoard.Application.Interfaces.Services;
@@ -7,6 +6,7 @@ using KanbanBoard.Domain.Entities;
 using KanbanBoard.Domain.Interfaces.Repository;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
+using KanbanBoard.Application.DTOs.Requests.Column;
 
 
 namespace KanbanBoard.Application.Services

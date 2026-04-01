@@ -26,14 +26,24 @@ namespace KanbanBoard.Infrastructure.Repository
                 .FirstOrDefaultAsync(b => b.Id == id);
         }
 
-        public async Task<IEnumerable<Board>> GetByUserId(string userId)
+
+        public async Task<(IEnumerable<Board> Items, int TotalCount)> GetByUserId(string userId, int page, int pageSize)
         {
-            return await context.Boards
+            var query = context.Boards
                 .Include(b => b.Columns.OrderBy(c => c.Position))
                 .Include(b => b.Members)
                 .Where(b => b.CreatedBy == userId ||
-                            b.Members.Any(m => m.UserId == userId))
+                            b.Members.Any(m => m.UserId == userId));
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderBy(b => b.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
+
+            return (items, totalCount);
         }
 
         public async Task<Board> Update(Board board)

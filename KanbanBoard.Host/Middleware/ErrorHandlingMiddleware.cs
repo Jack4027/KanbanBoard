@@ -3,7 +3,10 @@ using System.Runtime.InteropServices;
 
 namespace KanbanBoard.Host.Middleware
 {
-    public class ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandlingMiddleware> logger)
+    public class ErrorHandlingMiddleware(
+        RequestDelegate next,
+        ILogger<ErrorHandlingMiddleware> logger,
+        IHostEnvironment environment)
     {
         public async Task InvokeAsync(HttpContext context)
         {
@@ -33,7 +36,12 @@ namespace KanbanBoard.Host.Middleware
             {
                 logger.LogError(ex, "Unhandled exception");
                 context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                await context.Response.WriteAsJsonAsync(new { message = "An unexpected error occurred" });
+
+                var message = environment.IsDevelopment()
+                    ? ex.Message
+                    : "An unexpected error occurred. Please try again later.";
+
+                await context.Response.WriteAsJsonAsync(new { message });
             }
         }
     }

@@ -10,6 +10,7 @@ import { environment } from '../../../environments/environment';
 import { BoardSummary } from '../../shared/models/board.model';
 import { BoardFormComponent } from './board-form/board-form';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/confirm-dialog/confirm-dialog';
+import { PageEvent, MatPaginator } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-boards',
@@ -19,8 +20,9 @@ import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/confirm-
     MatButtonModule,
     MatIconModule,
     MatDialogModule,
-    MatProgressSpinnerModule
-  ],
+    MatProgressSpinnerModule,
+    MatPaginator
+],
   templateUrl: './boards.html',
   styleUrl: './boards.scss'
 })
@@ -28,6 +30,9 @@ export class BoardsComponent implements OnInit {
   boards: BoardSummary[] = [];
   isLoading = true;
   errorMessage = '';
+  totalCount = 0;
+  pageSize = 10;
+  currentPage = 1;
 
   constructor(
     private http: HttpClient,
@@ -40,21 +45,30 @@ export class BoardsComponent implements OnInit {
     this.loadBoards();
   }
 
-  loadBoards(): void {
-    this.isLoading = true;
-    this.http.get<BoardSummary[]>(`${environment.apiUrl}/boards`).subscribe({
-      next: boards => {
-        this.boards = [...boards];
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      },
-      error: (err: Error) => {
-        this.errorMessage = err.message;
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      }
-    });
-  }
+loadBoards(page: number = 1, pageSize: number = 10): void {
+  this.isLoading = true;
+  this.http.get<any>(
+    `${environment.apiUrl}/boards?page=${page}&pageSize=${pageSize}`
+  ).subscribe({
+    next: result => {
+      this.boards = [...result.items];
+      this.totalCount = result.totalCount;
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    },
+    error: (err: Error) => {
+      this.errorMessage = err.message;
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    }
+  });
+}
+
+onPageChange(event: PageEvent): void {
+  this.currentPage = event.pageIndex + 1;
+  this.pageSize = event.pageSize;
+  this.loadBoards(this.currentPage, this.pageSize);
+}
 
   openBoard(id: string): void {
     this.router.navigate(['/boards', id]);

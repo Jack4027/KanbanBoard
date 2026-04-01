@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
-using KanbanBoard.Application.DTOs.Requests;
+using KanbanBoard.Application.DTOs.Requests.Board;
+using KanbanBoard.Application.DTOs.Requests.Pagination;
 using KanbanBoard.Application.DTOs.Responses;
+using KanbanBoard.Application.DTOs.Responses.Pagination;
 using KanbanBoard.Application.Interfaces.Services;
 using KanbanBoard.Domain.Entities;
 using KanbanBoard.Domain.Interfaces.Repository;
@@ -51,10 +53,20 @@ namespace KanbanBoard.Application.Services
             return mapper.Map<BoardResponseDto>(board);
         }
 
-        public async Task<IEnumerable<BoardSummaryResponseDto>> GetBoardsByUserId(string userId)
+        public async Task<PagedResult<BoardSummaryResponseDto>> GetBoardsByUserId(string userId, PaginationParams pagination)
         {
-            var boards = await boardRepository.GetByUserId(userId);
-            return mapper.Map<IEnumerable<BoardSummaryResponseDto>>(boards);
+            var (items, totalCount) = await boardRepository.GetByUserId(
+                userId,
+                pagination.Page,
+                pagination.PageSize);
+
+            return new PagedResult<BoardSummaryResponseDto>
+            {
+                Items = mapper.Map<IEnumerable<BoardSummaryResponseDto>>(items),
+                TotalCount = totalCount,
+                Page = pagination.Page,
+                PageSize = pagination.PageSize
+            };
         }
 
         public async Task<BoardResponseDto> UpdateBoard(Guid id, UpdateBoardDto dto, string userId)

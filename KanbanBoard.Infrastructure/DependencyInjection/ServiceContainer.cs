@@ -5,13 +5,19 @@ using KanbanBoard.Infrastructure.Data;
 using KanbanBoard.Infrastructure.Hubs;
 using KanbanBoard.Infrastructure.Identity;
 using KanbanBoard.Infrastructure.Repository;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Identity.Client;
 using System;
 using System.Collections.Generic;
+using System.Runtime.Intrinsics.X86;
 using System.Text;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using static System.Net.WebRequestMethods;
 
 namespace KanbanBoard.Infrastructure.DependencyInjection
 {
@@ -20,9 +26,15 @@ namespace KanbanBoard.Infrastructure.DependencyInjection
         public static IServiceCollection AddInfrastructureLayerServices(
             this IServiceCollection services, IConfiguration config)
         {
-            // DbContext
             services.AddDbContext<KanbanDbContext>(opt =>
-                opt.UseSqlServer(config.GetConnectionString("DefaultConnection")));
+                opt.UseSqlServer(
+                    config.GetConnectionString("DefaultConnection"),
+                    sqlOptions => sqlOptions
+                        .EnableRetryOnFailure(
+                            maxRetryCount: 3,
+                            maxRetryDelay: TimeSpan.FromSeconds(5),
+                            errorNumbersToAdd: null)
+                        .CommandTimeout(30)));
 
             // Repositories
             services.AddScoped<IBoardRepository, BoardRepository>();
@@ -48,6 +60,13 @@ namespace KanbanBoard.Infrastructure.DependencyInjection
             })
             .AddEntityFrameworkStores<KanbanDbContext>()
             .AddDefaultTokenProviders();
+
+            services.AddHealthChecks()
+            .AddSqlServer(
+                connectionString: config.GetConnectionString("DefaultConnection")!,
+                name: "sql-server",
+                failureStatus: HealthStatus.Unhealthy,
+                tags: new[] { "database", "sql" });
 
             return services;
         }

@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kanban-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kanban-api
+  template:
+    metadata:
+      labels:
+        app: kanban-api
+    spec:
+      containers:
+        - name: kanban-api
+          image: kanban-api:latest
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: kanban-config
+          env:
+            - name: Jwt__Key
+              valueFrom:
+                secretKeyRef:
+                  name: kanban-secrets
+                  key: jwt-key
+            - name: ConnectionStrings__DefaultConnection
+              value: Server=kanban-sqlserver;Database=KanbanDb;User Id=sa;Password=$(SA_PASSWORD);TrustServerCertificate=True;
+            - name: SA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: kanban-secrets
+                  key: db-password
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10

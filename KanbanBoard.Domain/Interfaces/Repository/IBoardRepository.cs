@@ -10,7 +10,7 @@ namespace KanbanBoard.Domain.Interfaces.Repository
     {
         Task<Board> Add(Board board);
         Task<Board?> GetById(Guid id);
-        Task<IEnumerable<Board>> GetByUserId(string userId);
+        Task<(IEnumerable<Board> Items, int TotalCount)> GetByUserId(string userId, int page, int pageSize);
         Task<Board> Update(Board board);
         Task<bool> Delete(Guid id);
     }

@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using KanbanBoard.Application.DTOs.Requests;
+using KanbanBoard.Application.DTOs.Requests.Card;
 using KanbanBoard.Application.DTOs.Responses;
 using KanbanBoard.Application.Interfaces.Hubs;
 using KanbanBoard.Application.Interfaces.Services;

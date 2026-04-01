@@ -1,4 +1,6 @@
 ﻿using KanbanBoard.Application.DTOs.Requests;
+using KanbanBoard.Application.DTOs.Requests.Board;
+using KanbanBoard.Application.DTOs.Requests.Pagination;
 using KanbanBoard.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,9 +16,9 @@ namespace KanbanBoard.Host.Controllers
         private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
         [HttpGet]
-        public async Task<IActionResult> GetBoards()
+        public async Task<IActionResult> GetBoards([FromQuery] PaginationParams pagination)
         {
-            var response = await boardService.GetBoardsByUserId(UserId);
+            var response = await boardService.GetBoardsByUserId(UserId, pagination);
             return Ok(response);
         }
 

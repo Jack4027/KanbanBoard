@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kanban-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kanban-frontend
+  template:
+    metadata:
+      labels:
+        app: kanban-frontend
+    spec:
+      containers:
+        - name: kanban-frontend
+          image: kanban-frontend:latest
+          ports:
+            - containerPort: 80
