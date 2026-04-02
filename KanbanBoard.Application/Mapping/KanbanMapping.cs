@@ -7,6 +7,7 @@ using System.Text;
 
 namespace KanbanBoard.Application.Mapping
 {
+    //Mapping profile for mapping the request to the domain entities and the domain entities to the response objects, using AutoMapper.
     public class KanbanMapping : Profile
     {
         public KanbanMapping()

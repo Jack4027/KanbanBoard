@@ -9,6 +9,8 @@ using System.Text;
 
 namespace KanbanBoard.Application.Interfaces.Services
 {
+    //Interface used to inject the BoardService in the controllers,
+    //it defines the methods that will be implemented in the service to handle the business logic of the board operations such as creating, updating, deleting and getting boards.
     public interface IBoardService
     {
         Task<BoardResponseDto> CreateBoard(CreateBoardDto dto, string userId);

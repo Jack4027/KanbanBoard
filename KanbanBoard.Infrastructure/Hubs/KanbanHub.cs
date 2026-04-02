@@ -17,43 +17,22 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace KanbanBoard.Infrastructure.Hubs
 {
+    // The KanbanHub class is a SignalR hub that facilitates real-time communication between the server and clients for the Kanban board application.
     [Authorize]
     public class KanbanHub : Hub
     {
+        //Join board allows client to join a board and its associated group in SignalR
         public async Task JoinBoard(string boardId)
         {
+            //Connection Id is a unique identifier for each client connection to the SignalR hub, it is used to manage group memberships and send targeted notifications to specific clients based on their connection ID.
             await Groups.AddToGroupAsync(Context.ConnectionId, boardId);
         }
 
+        //Leave board removes a client from a board and its associated group, they will cease to receive notifications related to that board
         public async Task LeaveBoard(string boardId)
         {
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, boardId);
         }
     }
 
-//---
-
-//** What this does**
-
-//`KanbanHub` is the SignalR hub — the server side endpoint that manages WebSocket connections.
-
-//`JoinBoard` — when a user opens a board in Angular they call this method.SignalR adds their connection to a group named after the board Id. Every user viewing the same board is in the same group.
-
-//`LeaveBoard` — when a user navigates away they call this to leave the group. Their connection is removed and they stop receiving updates for that board.
-
-//`[Authorize]` — only authenticated users can connect to the hub. The JWT token is validated on connection.
-
-//---
-
-//**Groups are the key concept**
-
-//Think of a group as a broadcast channel:
-//```
-//Board A group:
-//  → John's connection
-//  → Sarah's connection
-//  → Mike's connection
-
-//Board B group:
-//  → Lisa's connection
 }

@@ -21,11 +21,14 @@ using static System.Net.WebRequestMethods;
 
 namespace KanbanBoard.Infrastructure.DependencyInjection
 {
+    //Service container to be used to inject the infrastructure level services into program.cs, it includes the database context, repositories, authentication services, SignalR hub services and health checks.
     public static class ServiceContainer
     {
         public static IServiceCollection AddInfrastructureLayerServices(
             this IServiceCollection services, IConfiguration config)
         {
+            // Database context configuration with SQL Server and retry logic for transient failures, allowing the application to automatically retry failed database operations up to 3 times with a delay of 5 seconds between each attempt,
+            // improving resilience and reliability when connecting to the database.
             services.AddDbContext<KanbanDbContext>(opt =>
                 opt.UseSqlServer(
                     config.GetConnectionString("DefaultConnection"),
@@ -50,7 +53,7 @@ namespace KanbanBoard.Infrastructure.DependencyInjection
             services.AddSignalR();
             services.AddScoped<IKanbanNotificationService, KanbanNotificationService>();
 
-            // Identity
+            // Identity config for user authentication and authorization, it sets up the password requirements for user accounts, such as a minimum length of 8 characters, the requirement for at least one digit, one uppercase letter, and one non-alphanumeric character.
             services.AddIdentityCore<AppUserIdentity>(opt =>
             {
                 opt.Password.RequiredLength = 8;
@@ -58,9 +61,12 @@ namespace KanbanBoard.Infrastructure.DependencyInjection
                 opt.Password.RequireUppercase = true;
                 opt.Password.RequireNonAlphanumeric = true;
             })
+            //Use the kanbandbcontext as the context for ASP.NET Core Identity, allowing it to manage user authentication and authorization data within the same database context as the application's domain entities,
+            //simplifying data management and ensuring consistency across the application.
             .AddEntityFrameworkStores<KanbanDbContext>()
             .AddDefaultTokenProviders();
 
+            // Health checks configuration to monitor the health of the application, specifically checking the connectivity to the SQL Server database using the connection string defined in the application's configuration.
             services.AddHealthChecks()
             .AddSqlServer(
                 connectionString: config.GetConnectionString("DefaultConnection")!,

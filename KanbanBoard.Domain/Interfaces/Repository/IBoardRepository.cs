@@ -6,6 +6,9 @@ using System.Text;
 
 namespace KanbanBoard.Domain.Interfaces.Repository
 {
+    /// This interface defines the contract for the Board repository,
+    /// which is responsible for handling all the data access operations related to the Board entity,
+    /// such as adding, retrieving, updating and deleting boards from the database.
     public interface IBoardRepository
     {
         Task<Board> Add(Board board);

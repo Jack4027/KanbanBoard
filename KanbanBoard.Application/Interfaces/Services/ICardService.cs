@@ -3,6 +3,7 @@ using KanbanBoard.Application.DTOs.Responses;
 
 namespace KanbanBoard.Application.Interfaces.Services
 {
+    //Interface that defines the methods related to the card operations, such as creating, updating, moving and deleting a card.
     public interface ICardService
     {
         Task<CardResponseDto> CreateCard(Guid columnId, CreateCardDto dto, string userId);

@@ -1,5 +1,6 @@
 ﻿namespace KanbanBoard.Application.DTOs.Responses
 {
+    //Object sent back to angular to represent a card, it includes the card details such as id, title, description and creation date
     public record CardResponseDto
     {
         public Guid Id { get; init; }

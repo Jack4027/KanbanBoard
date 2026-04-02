@@ -2,6 +2,8 @@
 
 namespace KanbanBoard.Domain.Interfaces.Repository
 {
+    //Interface that defines the methods that will be implemented by the ColumnRepository,
+    //which is responsible for handling the data access for the Column entity.
     public interface IColumnRepository
     {
         Task<Column> Add(Column column);

@@ -4,6 +4,7 @@ using System.Text;
 
 namespace KanbanBoard.Application.DTOs.Requests.Pagination
 {
+    //This object represents the paganation parameters passed by the user in the query string, it has default values and also limits the maximum page size to prevent abuse
     public class PaginationParams
     {
         private const int MaxPageSize = 50;
@@ -11,6 +12,7 @@ namespace KanbanBoard.Application.DTOs.Requests.Pagination
 
         public int Page { get; set; } = 1;
 
+        //Custom setter to implement the maximum page size limit
         public int PageSize
         {
             get => _pageSize;
